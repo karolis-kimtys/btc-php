@@ -45,7 +45,7 @@
             }
 
             $.ajax({
-                url: "save.php",
+                url: "insert.php",
                 type: "POST",
                 data: {
                     price: price,
@@ -189,35 +189,36 @@
         <form action="index.php" method="post" class="inputs" id="form">
             <div class="input_rows">
                 <label>Price</label>
-                <input type="number" name="price" placeholder="2.99" id="price" />
+                <input type="number" name="price" placeholder="2.99" id="price" value="10141.4" />
             </div>
-            <div class="input_rows">
+            <div class=" input_rows">
                 <label>Timestamp</label>
-                <input type="text" name="timestamp" placeholder="10000000" id="timestamp" />
+                <input type="text" name="timestamp" placeholder="10000000" id="timestamp" value="101010101010" />
             </div>
             <div class="input_rows">
                 <label>Date</label>
-                <input type="text" name="date" placeholder="2022-12-31 23:59:59" id="date" />
+                <input type="text" name="date" placeholder="2022-12-31 23:59:59" id="date"
+                    value="2022-12-31 23:59:59" />
             </div>
             <div class="input_rows">
                 <label>Year</label>
-                <input type="text" name="year" placeholder="2022" id="year" />
+                <input type="text" name="year" placeholder="2022" id="year" value="2022" />
             </div>
             <div class="input_rows">
                 <label>Month</label>
-                <input type="text" name="month" placeholder="12" id="month" />
+                <input type="text" name="month" placeholder="12" id="month" value="12" />
             </div>
             <div class="input_rows">
                 <label>Day</label>
-                <input type="text" name="day" placeholder="31" id="day" />
+                <input type="text" name="day" placeholder="31" id="day" value="31" />
             </div>
             <div class="input_rows">
                 <label>Hour</label>
-                <input type="text" name="hour" placeholder="2359" id="hour" />
+                <input type="text" name="hour" placeholder="2359" id="hour" value="2359" />
             </div>
             <div class="input_rows">
                 <label>Zero Hour</label>
-                <input type="text" name="zerohour" placeholder="2300" id="zerohour" />
+                <input type="text" name="zerohour" placeholder="2300" id="zerohour" value="2300" />
             </div>
         </form>
 
@@ -401,6 +402,13 @@
 
                 var response = ''
                 $.ajax({
+                    // url: `https://btc-server-app.herokuapp.com/getby/${selected_year}`,
+
+                    // url: `https://btc-server-app.herokuapp.com/getby/${selected_year}${selected_month && "/" + selected_month}`,
+
+
+                    // url: `https://btc-server-app.herokuapp.com/getby/${selected_year}${selected_month && "/" + selected_month}${selected_day && "/" + selected_day}`,
+
                     url: `https://btc-server-app.herokuapp.com/getby/${selected_year}${selected_month && "/" + selected_month}${selected_day && "/" + selected_day}${selected_hour && "/" + selected_hour}`,
                     type: "GET",
                     cache: false,
