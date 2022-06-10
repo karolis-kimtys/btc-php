@@ -18,6 +18,7 @@ $stmt = mysqli_stmt_init($conn);
 
 if (!mysqli_stmt_prepare($stmt, $sql)) {
     echo 'SQL statement failed';
+    echo json_encode(['statusCode' => 201]);
 } else {
     mysqli_stmt_bind_param(
         $stmt,
@@ -31,12 +32,9 @@ if (!mysqli_stmt_prepare($stmt, $sql)) {
         $hour,
         $zerohour
     );
-}
-
-if (mysqli_query($conn, $sql)) {
+    mysqli_stmt_execute($stmt);
     echo json_encode(['statusCode' => 200]);
-} else {
-    echo json_encode(['statusCode' => 201]);
+    // $result = mysqli_stmt_get_result($stmt);
 }
 
 mysqli_close($conn);
