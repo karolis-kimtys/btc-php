@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bitcoin Data</title>
+
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css" />
+
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.js"
+      integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="./moment.min.js"></script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body>
+    <script>
+      // Create "div" container to hold all
+      $("<div>", { class: "container" }).appendTo("body");
+
+      // Create status container
+      $("<div>", { class: "status_container" }).appendTo(".container");
+
+      // Create status header
+      $("<h1>", { class: "status_header", text: "Bitcoin Data" }).appendTo(
+        ".status_container"
+      );
+
+      // Create status messages
+      $(document).ready(function () {
+        $.ajax({
+          url: "status.php",
+          dataType: "JSON",
+          type: "GET",
+          success: function (data) {
+            $("<h5>", {
+              class: "status_header",
+              text: `Connected to "${data.database}" database, "${data.table}" table.`,
+            }).appendTo(".status_container");
+          },
+          error: function (error) {
+            console.log("🚀 - error", error.responseText);
+          },
+        });
+      });
+
+      // Create "div" container to hold all inputs/button to insert data
+      $("<div>", { class: "input_container" }).appendTo(".container");
+
+      // Create title text
+      $("<h5>")
+        .text("Insert row into the MySQL table")
+        .appendTo(".input_container");
+
+      // Create a form to hold all inputs to insert data
+      $("<form>", {
+        class: "form",
+        id: "form",
+        method: "POST",
+        action: "insert.php",
+      }).appendTo(".input_container");
+
+      // Create "div" container to hold all inputs/button to insert data
+      $("<div>", { class: "price_input" }).appendTo(".form");
+      $("<label>", { text: "Price" }).appendTo(".price_input");
+      $("<input>", {
+        type: "number",
+        name: "price",
+        id: "price",
+        value: moment().unix() / 100000,
+      }).appendTo(".price_input");
+
+      $("<div>", { class: "year_input" }).appendTo(".form");
+      $("<label>", { text: "Year" }).appendTo(".year_input");
+      $("<input>", {
+        type: "text",
+        name: "year",
+        id: "year",
+        value: moment().format("YYYY"),
+      }).appendTo(".year_input");
+
+      $("<div>", { class: "month_input" }).appendTo(".form");
+      $("<label>", { text: "Month" }).appendTo(".month_input");
+      $("<input>", {
+        type: "text",
+        name: "month",
+        id: "month",
+        value: moment().format("MM"),
+      }).appendTo(".month_input");
+
+      $("<div>", { class: "day_input" }).appendTo(".form");
+      $("<label>", { text: "Day" }).appendTo(".day_input");
+      $("<input>", {
+        type: "text",
+        name: "day",
+        id: "day",
+        value: moment().format("DD"),
+      }).appendTo(".day_input");
+
+      $("<div>", { class: "hour_input" }).appendTo(".form");
+      $("<label>", { text: "Hour" }).appendTo(".hour_input");
+      $("<input>", {
+        type: "text",
+        name: "hour",
+        id: "hour",
+        value: moment().format("HHmm"),
+      }).appendTo(".hour_input");
+
+      $("<div>", { class: "date_input" }).appendTo(".form");
+      $("<label>", { text: "Date" }).appendTo(".date_input");
+      $("<input>", {
+        type: "text",
+        name: "date",
+        id: "date",
+        value: moment().format("YYYY-MM-DD HH:mm"),
+        // disabled: true,
+      }).appendTo(".date_input");
+
+      $("<div>", { class: "timestamp_input" }).appendTo(".form");
+      $("<label>", { text: "Timestamp" }).appendTo(".timestamp_input");
+      $("<input>", {
+        type: "text",
+        name: "timestamp",
+        id: "timestamp",
+        value: moment().unix(),
+        // disabled: true,
+      }).appendTo(".timestamp_input");
+
+      $("<div>", { class: "zerohour_input" }).appendTo(".form");
+      $("<label>", { text: "Zero Hour" }).appendTo(".zerohour_input");
+      $("<input>", {
+        type: "text",
+        name: "zerohour",
+        id: "zerohour",
+        value: moment().format("HH00"),
+        // disabled: true,
+      }).appendTo(".zerohour_input");
+
+      // Create a button to insert data
+      $("<button>", {
+        class: "button",
+        id: "insert",
+        text: "Insert row",
+      }).appendTo(".form");
+
+      $(document)
+        .on("input", "#year, #month, #day, #hour", function () {
+          $("#date").val(
+            $("#year").val() +
+              "-" +
+              $("#month").val() +
+              "-" +
+              $("#day").val() +
+              " " +
+              $("#hour").val().toString().substr(0, 2) +
+              ":" +
+              $("#hour").val().toString().substr(2)
+          );
+        })
+        .on("input", "#year, #month, #day, #hour", function () {
+          $("#timestamp").val(new Date($("#date").val()).getTime() / 1000);
+        })
+        .on("input", "#hour", function () {
+          $("#zerohour").val($("#hour").val().toString().substr(0, 2) + "00");
+        });
+
+      $(document).ready(function () {
+        $("#insert").click(function (e) {
+          e.preventDefault();
+          var price = $("#price").val();
+          var year = $("#year").val();
+          var month = $("#month").val();
+          var day = $("#day").val();
+          var hour = $("#hour").val();
+          var date = $("#date").val().split(":").join(":");
+          var timestamp = $("#timestamp").val();
+          var zerohour = $("#zerohour").val();
+          if (
+            price == "" ||
+            timestamp == "" ||
+            date == "" ||
+            year == "" ||
+            month == "" ||
+            day == "" ||
+            hour == "" ||
+            zerohour == ""
+          ) {
+            alert("Please fill all of the fields!");
+            return false;
+          }
+          $.ajax({
+            url: "insert.php",
+            type: "post",
+            // dataType: "json",
+            cache: false,
+            async: true,
+            data: $("form").serialize(),
+            dataType: "text",
+            success: function (data) {
+              console.log("🚀 Data:", data);
+            },
+            error: function (data) {
+              console.log("Error: " + data);
+            },
+          });
+        });
+      });
+    </script>
+
+    <script>
+      var selected_year = "";
+      var selected_month = "";
+      var selected_day = "";
+      var selected_hour = "";
+
+      var prices = [];
+      var dates = [];
+
+      // Chart configuration
+      const data = {
+        labels: dates,
+        datasets: [
+          {
+            label: "Bitcoin Price",
+            backgroundColor: "rgb(15, 99, 132)",
+            borderColor: "rgb(25, 99, 132)",
+            data: prices,
+            pointRadius: 1,
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      const config = {
+        type: "line",
+        data: data,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              display: false,
+            },
+          },
+        },
+      };
+
+      // Create "div" container to hold all data table/buttons/chart/options
+      $("<div>", { class: "chart_container" }).appendTo(".container");
+
+      // Create title text
+      $("<h5>")
+        .text("Select dates to view Bitcoin chart and data")
+        .appendTo(".chart_container");
+
+      // Create selectors for year, month, day, hour
+      $("<div>", { class: "select_chart" }).appendTo(".chart_container");
+      $("<div>", { class: "container_row" }).appendTo(".select_chart");
+      $("<select>", { id: "year", class: "year" }).appendTo(".container_row");
+      $("<select>", { id: "month", class: "month" }).appendTo(".container_row");
+      $("<select>", { id: "day", class: "day" }).appendTo(".container_row");
+      $("<select>", { id: "hour", class: "hour" }).appendTo(".container_row");
+
+      // Create options for year, month, day, hour
+      $("<option>", { value: "" }).text("Year").appendTo(".year");
+      $("<option>", { value: "" }).text("Month").appendTo(".month");
+      $("<option>", { value: "" }).text("Day").appendTo(".day");
+      $("<option>", { value: "" }).text("Hour").appendTo(".hour");
+
+      // Create "button container" to hold all buttons
+      $("<div>", { class: "buttons container_row" }).appendTo(
+        ".chart_container"
+      );
+
+      // Create fetch data button with all required functionality
+      $("<button>", { class: "button", id: "fetch_button" })
+        .appendTo(".buttons")
+        .text("Fetch data");
+
+      $("#fetch_button").on("click", function fetch() {
+        prices.length = 0;
+        dates.length = 0;
+
+        $(".table_body").empty();
+
+        var year = selected_year;
+        var month = selected_month;
+        var day = selected_day;
+        var hour = selected_hour;
+
+        if (year == "" && month == "" && day == "" && hour == "") {
+          alert("Please select dates!");
+          return false;
+        }
+
+        var response = "";
+        $.ajax({
+          url: `http://localhost:8888/btc/api.php/${selected_year}/${selected_month}/${selected_day}/${selected_hour}`,
+          type: "GET",
+          cache: false,
+          async: true,
+          success: function (data) {
+            $.each(data, function (i) {
+              prices.push(data[i].price);
+              dates.push(moment(data[i].date).format("YYYY-MM-DD h:mm:ss"));
+              $(".table_body").prepend(
+                "<tr>" +
+                  "<td>" +
+                  data[i].price +
+                  "</td>" +
+                  "<td>" +
+                  moment(data[i].date).format("YYYY-MM-DD h:mm:ss") +
+                  "</td>" +
+                  "</tr>"
+              );
+            });
+            myChart.update();
+          },
+          error: function (error) {
+            console.log("🚀 - error", error.responseText);
+          },
+        });
+      });
+
+      // Create button to download chart as image
+      $("<button>", { class: "button", id: "download_button" })
+        .appendTo(".buttons")
+        .text("Download chart");
+
+      $("#download_button").on("click", function () {
+        var image = myChart.toBase64Image("image/jpeg", 1);
+        $("<a>")
+          .attr("href", image)
+          .attr("download", "chart.jpg")
+          .appendTo("body")[0]
+          .click();
+      });
+
+      // Create "canvas" element to store chart
+      $("<div>", { class: "chart" }).appendTo(".chart_container");
+      $("<canvas>", { id: "myChart" }).appendTo(".chart");
+      const myChart = new Chart($("#myChart"), config);
+
+      //  Creata a <table> element
+      $("<table>", { class: "table" }).appendTo(".chart_container");
+
+      // // Create table header
+      $("<thead>")
+        .appendTo(".table")
+        .append("<tr><th>Price (USD)</th>" + "<th>Date</th></tr>");
+
+      // Create table body
+      $("<tbody>", { class: "table_body" }).appendTo("table");
+
+      $.ajax({
+        url: "https://btc-server-app.herokuapp.com/getall/years",
+        type: "GET",
+        success: function (data) {
+          $.each(data, function (i) {
+            if (data[i].year !== null) {
+              $("<option>")
+                .val(data[i].year)
+                .text(data[i].year)
+                .appendTo(".year");
+            }
+          });
+        },
+      });
+
+      $(".month").attr("hidden", true);
+      $(".day").attr("hidden", true);
+      $(".hour").attr("hidden", true);
+
+      $(document)
+        .on("change", ".year", function () {
+          $(".month").val("");
+          $(".day").val("");
+          $(".hour").val("");
+          if ($(".year").val() === "") {
+            $(".month").attr("hidden", true);
+            $(".download").attr("hidden", true);
+          } else {
+            $(".month").attr("hidden", false);
+            $(".download").attr("hidden", false);
+            selected_year = this.value;
+            $.ajax({
+              url: `https://btc-server-app.herokuapp.com/getall/${this.value}/months`,
+              type: "GET",
+              success: function (data) {
+                $.each(data, function (i) {
+                  if (data[i].month !== null) {
+                    $("<option>")
+                      .val(data[i].month)
+                      .text(data[i].month)
+                      .appendTo(".month");
+                  }
+                });
+              },
+            });
+          }
+        })
+        .on("change", ".month", function () {
+          $(".day").val("");
+          $(".hour").val("");
+          if ($(".month").val() === "") {
+            $(".day").attr("hidden", true);
+          } else {
+            $(".day").attr("hidden", false);
+            selected_month = this.value;
+            $.ajax({
+              url: `https://btc-server-app.herokuapp.com/getall/${selected_year}/${this.value}/days`,
+              type: "GET",
+              success: function (data) {
+                $.each(data, function (i) {
+                  if (data[i].day !== null) {
+                    $("<option>")
+                      .val(data[i].day)
+                      .text(data[i].day)
+                      .appendTo(".day");
+                  }
+                });
+              },
+            });
+          }
+        })
+        .on("change", ".day", function () {
+          $(".hour").val("");
+          if ($(".day").val() === "") {
+            $(".hour").attr("hidden", true);
+          } else {
+            $(".hour").attr("hidden", false);
+            selected_day = this.value;
+            $.ajax({
+              url: `https://btc-server-app.herokuapp.com/getall/${selected_year}/${selected_month}/${this.value}/hours`,
+              type: "GET",
+              success: function (data) {
+                $.each(data, function (i) {
+                  if (data[i].hour !== null) {
+                    $("<option>")
+                      .val(data[i].hour)
+                      .text(data[i].hour)
+                      .appendTo(".hour");
+                  }
+                });
+              },
+            });
+          }
+        })
+        .on("change", ".hour", function () {
+          selected_hour = this.value;
+        });
+    </script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

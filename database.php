@@ -14,4 +14,8 @@ $database = $_ENV['SQL_DB'];
 
 $conn = mysqli_connect($servername, $username, $password, $database);
 
+if (!$conn) {
+    die('Could not Connect MySql Server:' . mysqli_connect_error());
+}
+
 ?>
